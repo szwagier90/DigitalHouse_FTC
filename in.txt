@@ -1,0 +1,19 @@
+{
+start_time: utc,
+rooms:
+	{
+	room1: [room2, room3, room4],
+	room2: [room1],
+	room3: [room1],
+	room4: [room1, room5],
+	room5: [room4],
+	}
+device: 
+	{
+	room1: [temperature_sensor, light],
+	room2: [smoke_sensor],
+	room3: [light],
+	room4: [window_open_sensor],
+	room5: [humidity_sensor],
+	}
+}
