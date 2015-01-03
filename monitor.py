@@ -1,48 +1,69 @@
 import json
 import Tkinter
-from devices import LightBulb
+from devices import LightBulb, AirTemp
 from sensors import SmokeSensor
 from room import Room
 
+DEV = {
+    'light': LightBulb,
+    'smoke_sensor': SmokeSensor,
+    'humidity_sensor': SmokeSensor,
+    'air_condition': AirTemp
+}
 
 class Monitor(object):
     '''
     Przeplyw sterowania
     '''
-    def __init__(self):
+    def __init__(self, config_file):
         self.window = Tkinter.Tk()
 
-        self.room1 = Room('Room1', self.window)
-        self.room2 = Room('Room2', self.window)
-
-        self.light1 = LightBulb('light1', 50)
-        self.light2 = LightBulb('light2', 30)
-
-        self.smoke1 = SmokeSensor('smoke1', self.room1)
+        self.filename = config_file
+        #rooms = {
+        #   room1: {
+        #       handle:,
+        #       object:,
+        #       devices: [],
+        #   },
+        # }
+        self.rooms = {}  #uchwyty do okien dla pokojow
 
     def readFromFile(self, filename):
-        #na podstawie tego pliku bedziemy generowac pomieszczenia
+        '''
+        odczyt pliku Json
+        '''
         with open(filename, 'r') as fileh:
             json_data = fileh.read()
             data = json.loads(json_data)
 
         return data['device'], data['rooms'], data['start_time']
 
+    def generateRooms(self):
+        '''
+        generowanie objektow pomieszczen,
+        dane obiekty zapisujemy do self.rooms (patrz __init__)
+        '''
+        devices, rooms, time = self.readFromFile(self.filename)
+
+        for room in devices.keys():
+            self.rooms[room] = {
+                'object': Room(room, self.window)
+            }
+            self.rooms[room]['handle'] = self.rooms[room]['object'].show()
+            self.rooms[room]['devices'] = []
+
+            for device in devices[room]:
+                #dodaemy obiekty urzadzen na liste
+                try:
+                    self.rooms[room]['devices'].append(DEV[device](name='{}:{}'.format(device, room)))
+                    self.rooms[room]['devices'][-1].show(self.rooms[room]['handle'])
+                except KeyError:
+                    print 'Nie mozna zidentyfikowac urzadzenia {}. Nie zostalo dodane.'.format(device)
+
     def showBoard(self):
-
-        room1 = self.room1.show()
-        room2 = self.room2.show()
-
-        self.light1.show(room1)
-
-        self.light2.show(room2)
-
-        self.smoke1.show(room1)
-
+        self.generateRooms()
         self.window.mainloop()
 
 if __name__ == '__main__':
-    m=Monitor()
+    m=Monitor('in.txt')
     m.showBoard()
-
-    #m.readFromFile('in.txt')

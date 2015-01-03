@@ -4,21 +4,18 @@ class SmokeSensor(object):
     '''
     Czujnik dymu
     '''
-    def __init__(self, name, my_room_obj):
+    def __init__(self, name):
 
         self.name = name
-        #obiekt pokoju do ktorego nalezy sensor
-        self.room = my_room_obj
 
     def read(self):
         #tutaj czytamy z pokoju lub z generowanych wartosci sensora (do uzgodnienia)
-        #print self.room.getVal()
-        print 'odczyt'
+        print 'odczyt z urzadzenia: {}'.format(self.name)
 
     def show(self, windowh):
         button = Tkinter.Button(
             windowh,
-            text='Read Smoke',
+            text='Read {}'.format(self.name),
             command=lambda: self.read()
         )
         button.pack()
