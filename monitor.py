@@ -1,14 +1,17 @@
 import json
 import Tkinter
-from devices import LightBulb, AirTemp
-from sensors import SmokeSensor
+from devices import LightBulb, AirTemp, Window
+from sensors import Sensor
 from room import Room
+from timer import Timer
 
 DEV = {
     'light': LightBulb,
-    'smoke_sensor': SmokeSensor,
-    'humidity_sensor': SmokeSensor,
-    'air_condition': AirTemp
+    'smoke_sensor': Sensor,
+    'humidity_sensor': Sensor,
+    'air_condition': AirTemp,
+    'temperature_sensor': Sensor,
+    'window': Window,
 }
 
 class Monitor(object):
@@ -27,6 +30,7 @@ class Monitor(object):
         #   },
         # }
         self.rooms = {}  #uchwyty do okien dla pokojow
+        self.timer = Timer(1,2,3, self.window).show()
 
     def readFromFile(self, filename):
         '''
@@ -45,6 +49,8 @@ class Monitor(object):
         '''
         devices, rooms, time = self.readFromFile(self.filename)
 
+
+
         for room in devices.keys():
             self.rooms[room] = {
                 'object': Room(room, self.window)
@@ -53,9 +59,13 @@ class Monitor(object):
             self.rooms[room]['devices'] = []
 
             for device in devices[room]:
-                #dodaemy obiekty urzadzen na liste
+                #dodajemy obiekty urzadzen na liste
                 try:
-                    self.rooms[room]['devices'].append(DEV[device](name='{}:{}'.format(device, room)))
+                    self.rooms[room]['devices'].append(
+                        DEV[device](
+                            name='{}:{}'.format(device, room),
+                            room_obj=self.rooms[room]['object'])
+                    )
                     self.rooms[room]['devices'][-1].show(self.rooms[room]['handle'])
                 except KeyError:
                     print 'Nie mozna zidentyfikowac urzadzenia {}. Nie zostalo dodane.'.format(device)
@@ -65,5 +75,5 @@ class Monitor(object):
         self.window.mainloop()
 
 if __name__ == '__main__':
-    m=Monitor('in.txt')
+    m = Monitor('in.txt')
     m.showBoard()
