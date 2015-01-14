@@ -14,8 +14,6 @@ class Room(object):
         self.name = name
         self.window = window
         self.timer = timer
-        #print name
-        #print self.devices
 
         self.params = {
             'humidity': {
@@ -38,25 +36,42 @@ class Room(object):
                 'min': 15,
                 'step': 1,
                 'default': 20
+            },
+            'motion': {
+                'value': 0,
+                'max': 1,
+                'min': 0,
+                'step': 1,
+                'default': 0
             }
         }
 
     def getVal(self, param):
         return self.params[param]
 
+    def getDevices(self):
+        return self.devices
+
     def randVal(self):
         while 1:
-            for key in self.params.keys():
+            for key in ['humidity', 'smoke', 'temperature']:
                 step = self.params[key]['step']
                 self.params[key]['value'] += random.randint(-1*step, step)
             sleep(3)
+
+    def simulateUser(self):
+        self.params['motion']['value'] = 1
+        self.room.config(bg='red')
+        sleep(5)
+        self.params['motion']['value'] = 0
+        self.room.config(bg='white')
 
     def show(self):
         '''
         zwraca uchyt do okna
         :return: room
         '''
-        self.room = Tkinter.LabelFrame(self.window, text=self.name)
+        self.room = Tkinter.LabelFrame(self.window, text=self.name, bg='white')
         self.room.pack(fill='both', expand='yes', side=Tkinter.LEFT)
 
         t = threading.Thread(target=self.randVal)

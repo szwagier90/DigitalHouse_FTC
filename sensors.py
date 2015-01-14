@@ -6,7 +6,7 @@ from time import sleep
 
 class Sensor(object):
     '''
-    Czujnik dymu
+    Czujnik
     '''
     def __init__(self, name, room_obj=None):
 
@@ -38,7 +38,7 @@ class Sensor(object):
             print 'odczyt cykliczny z urzadzenia: {} = {}'.format(self.name, self.value)
             if param['max'] < self.value or param['min'] > self.value:
                 print 'WARNING: {} = {}'.format(self.name, self.value)
-            sleep(5)
+            sleep(1)
 
     def getSensorName(self, name):
         return re.match(r'([a-z]*)_sensor.*', name).groups()[0]

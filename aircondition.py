@@ -13,6 +13,7 @@ class AirTemp(object):
         self.temp = temp
         self.on = True
         self.room_obj = room_obj
+        self.get_devices = room_obj.getDevices
         self.timer = room_obj.timer
 
     def setOnOff(self):
@@ -22,7 +23,7 @@ class AirTemp(object):
             self.setOn()
 
     def setOn(self):
-        for dev in self.room_obj.devices:
+        for dev in self.get_devices():
             if dev.name.startswith('window'):
                 dev.setOff()
         self.on = True
@@ -84,17 +85,28 @@ class AirTemp(object):
         self.button.pack(fill=Tkinter.X)
         self.scale.pack(fill=Tkinter.X)
 
+
         t = threading.Thread(target=self.run)
         t.start()
 
     def run(self):
+        sleep(3)
+        t = None    #sensor temperatury
+
+        for dev in self.get_devices():
+            print dev.name
+            try:
+                if dev.sensor == 'temperature':
+                    t = dev
+            except AttributeError:
+                pass
         while 1:
             h = self.timer.getHours()
-            p = self.room_obj.params['temperature']
+            p = self.room_obj.params['temperature'] #parametry pokoju
             if self.on:
-                sign = math.copysign(1, self.temp - p['value'])
+                sign = math.copysign(1, self.temp - t.value)
                 p['value'] += sign * p['step']
-            elif p['value'] < p['min'] or p['value'] > p['max']:
+            elif t.value < p['min'] or t.value > p['max']:
                 print 'Zbyt niska temperatura - WLACZAMY klimatyzacje'
                 self.set_config(p['default'])
 
