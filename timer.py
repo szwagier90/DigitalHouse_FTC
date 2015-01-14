@@ -12,6 +12,9 @@ class Timer(object):
     def getTime(self):
         return self.current_time
 
+    def getStrTime(self):
+        return ':'.join(["%02d"%(x) for x in self.current_time])
+
     def getHours(self):
         return self.current_time[0]
 
@@ -25,9 +28,7 @@ class Timer(object):
         self.getTime()
 
     def changeTime(self):
-        time = ':'.join(["%02d"%(x) for x in self.current_time])
-
-        self.button.config(text=time)
+        self.button.config(text=self.getStrTime())
 
     def addHour(self):
         if self.current_time[0] < 23:
@@ -46,6 +47,8 @@ class Timer(object):
 
         t = threading.Thread(target=self.run)
         t.start()
+
+        return self
 
     def run(self):
 

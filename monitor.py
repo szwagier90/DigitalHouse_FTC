@@ -1,6 +1,8 @@
 import json
 import Tkinter
-from devices import LightBulb, AirTemp, Window
+from aircondition import AirTemp
+from window import Window
+from light import LightBulb
 from sensors import Sensor
 from room import Room
 from timer import Timer
@@ -30,7 +32,8 @@ class Monitor(object):
         #   },
         # }
         self.rooms = {}  #uchwyty do okien dla pokojow
-        self.timer = Timer(1,2,3, self.window).show()
+        self.timer = Timer(1, 2, 3, self.window).show()
+        self.user = None
 
     def readFromFile(self, filename):
         '''
@@ -53,7 +56,7 @@ class Monitor(object):
 
         for room in devices.keys():
             self.rooms[room] = {
-                'object': Room(room, self.window)
+                'object': Room(room, self.window, timer=self.timer)
             }
             self.rooms[room]['handle'] = self.rooms[room]['object'].show()
             self.rooms[room]['devices'] = []
@@ -64,11 +67,12 @@ class Monitor(object):
                     self.rooms[room]['devices'].append(
                         DEV[device](
                             name='{}:{}'.format(device, room),
-                            room_obj=self.rooms[room]['object'])
+                            room_obj=self.rooms[room]['object']),
                     )
                     self.rooms[room]['devices'][-1].show(self.rooms[room]['handle'])
                 except KeyError:
                     print 'Nie mozna zidentyfikowac urzadzenia {}. Nie zostalo dodane.'.format(device)
+            self.rooms[room]['object'].devices = self.rooms[room]['devices']
 
     def showBoard(self):
         self.generateRooms()

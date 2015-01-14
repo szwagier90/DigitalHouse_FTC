@@ -8,11 +8,15 @@ class Room(object):
     '''
     pokoje i ich parametry
     '''
-    def __init__(self, name, window, rooms_list=[], devices_list=[]):
+    def __init__(self, name, window, rooms_list=[], devices_list=[], timer=None):
         self.rooms = rooms_list
         self.devices = devices_list
         self.name = name
         self.window = window
+        self.timer = timer
+        #print name
+        #print self.devices
+
         self.params = {
             'humidity': {
                 'value': 40,
@@ -52,10 +56,10 @@ class Room(object):
         zwraca uchyt do okna
         :return: room
         '''
-        room = Tkinter.LabelFrame(self.window, text=self.name)
-        room.pack(fill='both', expand='yes', side=Tkinter.LEFT)
+        self.room = Tkinter.LabelFrame(self.window, text=self.name)
+        self.room.pack(fill='both', expand='yes', side=Tkinter.LEFT)
 
         t = threading.Thread(target=self.randVal)
         t.start()
 
-        return room
+        return self.room
