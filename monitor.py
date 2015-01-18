@@ -38,6 +38,27 @@ class Monitor(object):
         # }
         self.rooms = {}  #uchwyty do okien dla pokojow
         self.timer = Timer(1, 2, 3, self.window).show()
+        self.auto = False
+        self.manual_auto()
+        self.control()
+
+    def manual_auto(self):
+
+        def change_ma():
+            self.auto = not self.auto
+            if self.auto:
+                self.button_ma.config(text='Set manual')
+            else:
+                self.button_ma.config(text='Set auto')
+
+        self.label_ma = Tkinter.LabelFrame(self.window, text='Set auto/manual')
+        self.button_ma = Tkinter.Button(
+            self.label_ma,
+            text = 'set_auto',
+            command=lambda: change_ma()
+        )
+        self.label_ma.pack(side=Tkinter.TOP)
+        self.button_ma.pack()
 
     def readFromFile(self, filename):
         '''
@@ -49,14 +70,21 @@ class Monitor(object):
 
         return data['device'], data['rooms'], data['start_time']
 
+    def control(self):
+        label_war = Tkinter.LabelFrame(self.window, text='WARNING')
+        label = Tkinter.Label(label_war, text='jakie tam ostrzezenie\ntrolololo\ndgfdg\n', fg='red')
+        label.pack(fill='both')
+        label_war.pack(fill='x', side=Tkinter.TOP)
+
+
     def generateRooms(self):
         '''
         generowanie objektow pomieszczen,
         dane obiekty zapisujemy do self.rooms (patrz __init__)
         '''
-        devices, rooms, time = self.readFromFile(self.filename)
+        devices, self.room_plan, time = self.readFromFile(self.filename)
 
-
+        print self.room_plan
 
         for room in devices.keys():
             self.rooms[room] = {
@@ -71,20 +99,28 @@ class Monitor(object):
                     self.rooms[room]['devices'].append(
                         DEV[device](
                             name='{}:{}'.format(device, room),
-                            room_obj=self.rooms[room]['object']),
+                            room_obj=self.rooms[room]['object'],
+                            monitor=self
+                        )
                     )
                     self.rooms[room]['devices'][-1].show(self.rooms[room]['handle'])
                 except KeyError:
                     print 'Nie mozna zidentyfikowac urzadzenia {}. Nie zostalo dodane.'.format(device)
             self.rooms[room]['object'].devices = self.rooms[room]['devices']
 
+        #przelaczanie na auto lub manual
+
         t = threading.Thread(target=self.showUser)
         t.start()
 
     def showUser(self):
+        name = random.choice(self.rooms.keys())
+
         while 1:
-            key = random.choice(self.rooms.keys())
-            r = self.rooms[key]['object'].simulateUser()
+            key = random.choice(self.room_plan[name])
+            r = self.rooms[key]['object']
+            name = r.name
+            r.simulateUser()
 
 
     def showBoard(self):

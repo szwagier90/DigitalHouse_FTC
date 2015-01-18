@@ -8,12 +8,13 @@ class Sensor(object):
     '''
     Czujnik
     '''
-    def __init__(self, name, room_obj=None):
+    def __init__(self, name, room_obj=None, monitor=None):
 
         self.name = name
         self.sensor = self.getSensorName(name)
         self.room_obj = room_obj
         self.value = None
+        self.monitor = monitor
 
     def read(self):
         #tutaj czytamy z pokoju lub z generowanych wartosci sensora (do uzgodnienia)

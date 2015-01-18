@@ -7,11 +7,12 @@ class Window(object):
     '''
     Okno (nazwa, stopien)
     '''
-    def __init__(self, name, open_level=0, room_obj=None):
+    def __init__(self, name, open_level=0, room_obj=None, monitor=None):
         self.name = name
         self.lvl = open_level  # stopien otworzenia okna
         self.timer = room_obj.timer
         self.room_obj = room_obj
+        self.monitor = monitor
 
     def setOn(self, level=2):
         self.lvl = level

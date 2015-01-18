@@ -7,12 +7,13 @@ class LightBulb(object):
     '''
     Zarowka (nazwa, jasnosc)
     '''
-    def __init__(self, name, brightness=50, room_obj=None):
+    def __init__(self, name, brightness=50, room_obj=None, monitor=None):
         self.name = name
         self.brightness = brightness
         self.timer = room_obj.timer
         self.room_obj = room_obj
         self.get_devices = room_obj.getDevices  #funkcja, ktora zwraca liste urzadzen
+        self.monitor = monitor
 
     def setOn(self, power=100):
         self.brightness = power
@@ -67,11 +68,13 @@ class LightBulb(object):
                 pass
 
         while 1:
-            try:
-                if t.value:
-                    self.setBrightness(80)
-                else:
-                    self.setBrightness(0)
+            if self.monitor.auto:
+                try:
+                    if t.value:
+                        self.setBrightness(80)
+                    else:
+                        self.setBrightness(0)
 
-            except AttributeError:
-                pass
+                except AttributeError:
+                    pass
+            sleep(2)

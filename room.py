@@ -72,7 +72,7 @@ class Room(object):
         :return: room
         '''
         self.room = Tkinter.LabelFrame(self.window, text=self.name, bg='white')
-        self.room.pack(fill='both', expand='yes', side=Tkinter.LEFT)
+        self.room.pack(fill='both', side=Tkinter.LEFT)
 
         t = threading.Thread(target=self.randVal)
         t.start()

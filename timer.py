@@ -58,7 +58,7 @@ class Timer(object):
                     while self.current_time[2] < 60:
                         self.current_time[2] += 1
                         self.changeTime()
-                        sleep(1.0/50)
+                        sleep(1.0)
 
                     self.current_time[2] = 0
                     self.current_time[1] += 1

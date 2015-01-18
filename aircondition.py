@@ -8,13 +8,14 @@ class AirTemp(object):
     '''
     Klimatyzacja (temperatura)
     '''
-    def __init__(self, name, temp=20, room_obj=None):
+    def __init__(self, name, temp=20, room_obj=None, monitor=None):
         self.name = name
         self.temp = temp
         self.on = True
         self.room_obj = room_obj
         self.get_devices = room_obj.getDevices
         self.timer = room_obj.timer
+        self.monitor = monitor
 
     def setOnOff(self):
         if self.on:
@@ -23,9 +24,10 @@ class AirTemp(object):
             self.setOn()
 
     def setOn(self):
-        for dev in self.get_devices():
-            if dev.name.startswith('window'):
-                dev.setOff()
+        if self.monitor.auto:
+            for dev in self.get_devices():
+                if dev.name.startswith('window'):
+                    dev.setOff()
         self.on = True
 
     def setOff(self):
@@ -101,19 +103,20 @@ class AirTemp(object):
             except AttributeError:
                 pass
         while 1:
-            h = self.timer.getHours()
-            p = self.room_obj.params['temperature'] #parametry pokoju
-            if self.on:
-                sign = math.copysign(1, self.temp - t.value)
-                p['value'] += sign * p['step']
-            elif t.value < p['min'] or t.value > p['max']:
-                print 'Zbyt niska temperatura - WLACZAMY klimatyzacje'
-                self.set_config(p['default'])
+            if self.monitor.auto:
+                h = self.timer.getHours()
+                p = self.room_obj.params['temperature'] #parametry pokoju
+                if self.on:
+                    sign = math.copysign(1, self.temp - t.value)
+                    p['value'] += sign * p['step']
+                elif t.value < p['min'] or t.value > p['max']:
+                    print 'Zbyt niska temperatura - WLACZAMY klimatyzacje'
+                    self.set_config(p['default'])
 
-            if h > 20 or h < 6:
-                self.set_config(17, self.setOn)
-            elif self.on:
-                self.set_config(p['default'], self.setOn)
+                if h > 20 or h < 6:
+                    self.set_config(17, self.setOn)
+                elif self.on:
+                    self.set_config(p['default'], self.setOn)
 
             sleep(3)
 
