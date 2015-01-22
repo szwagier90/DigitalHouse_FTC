@@ -24,7 +24,7 @@ class AirTemp(object):
             self.setOn()
 
     def setOn(self):
-        if self.monitor.auto:
+        if self.monitor.auto and ('SMOKE' not in self.monitor.warnings):
             for dev in self.get_devices():
                 if dev.name.startswith('window'):
                     dev.setOff()

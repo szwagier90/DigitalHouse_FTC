@@ -23,13 +23,6 @@ class Room(object):
                 'step': 2,
                 'default': 40
             },
-            'smoke': {
-                'value': 30,
-                'max': 50,
-                'min': 10,
-                'step': 2,
-                'default': 30
-            },
             'temperature': {
                 'value': 20,
                 'max': 25,
@@ -43,6 +36,9 @@ class Room(object):
                 'min': 0,
                 'step': 1,
                 'default': 0
+            },
+            'smoke': {
+                'value': 0,
             }
         }
 
@@ -54,9 +50,10 @@ class Room(object):
 
     def randVal(self):
         while 1:
-            for key in ['humidity', 'smoke', 'temperature']:
+            for key in ['humidity', 'temperature']:
                 step = self.params[key]['step']
                 self.params[key]['value'] += random.randint(-1*step, step)
+            self.params['smoke']['value'] = random.randint(0, 100)
             sleep(3)
 
     def simulateUser(self):

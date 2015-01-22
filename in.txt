@@ -9,9 +9,9 @@
 	},
 "device":{
 	"room1": ["motion_sensor", "air_condition", "light", "temperature_sensor", "window"],
-	"room2": ["smoke_sensor", "light"],
+	"room2": ["smoke_detector", "light"],
 	"room3": ["motion_sensor", "light", "humidity_sensor", "window"],
 	"room4": ["light", "air_condition", "temperature_sensor", "window"],
-	"room5": ["light", "smoke_sensor", "humidity_sensor"]
+	"room5": ["light", "smoke_detector", "humidity_sensor"]
 	}
 }

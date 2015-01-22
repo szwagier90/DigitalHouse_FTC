@@ -4,6 +4,7 @@ import threading
 import random
 
 from aircondition import AirTemp
+from smoke_detector import SmokeDetector
 from window import Window
 from light import LightBulb
 from sensors import Sensor
@@ -13,7 +14,7 @@ from time import sleep
 
 DEV = {
     'light': LightBulb,
-    'smoke_sensor': Sensor,
+    'smoke_detector': SmokeDetector,
     'humidity_sensor': Sensor,
     'air_condition': AirTemp,
     'temperature_sensor': Sensor,
@@ -21,41 +22,45 @@ DEV = {
     'motion_sensor': Sensor
 }
 
+DOOR_SECRET_PASSWORD = "32167"
+
 class Monitor(object):
     '''
     Przeplyw sterowania
     '''
     def __init__(self, config_file):
+        self.warning_strings = {
+            'SMOKE': 'Uwaga wykryto dym! Możliwy pożar!',
+            'PASSWORD_INCORRECT': "Ktos chcial sie wlamac!!!"
+        }
+
         self.window = Tkinter.Tk()
 
         self.filename = config_file
-        #rooms = {
-        #   room1: {
-        #       handle:,
-        #       object:,
-        #       devices: [],
-        #   },
-        # }
+
         self.rooms = {}  #uchwyty do okien dla pokojow
         self.timer = Timer(1, 2, 3, self.window).show()
         self.auto = False
         self.manual_auto()
-        self.control()
+        self.warnings = []
+        self.open_door_button = None
+        self.warning_window()
+        self.open_the_door()
 
     def manual_auto(self):
 
-        def change_ma():
+        def set_auto_manual():
             self.auto = not self.auto
             if self.auto:
-                self.button_ma.config(text='Set manual')
+                self.button_ma.config(text='SET MANUAL')
             else:
-                self.button_ma.config(text='Set auto')
+                self.button_a.config(text='SET AUTO')
 
         self.label_ma = Tkinter.LabelFrame(self.window, text='Set auto/manual')
         self.button_ma = Tkinter.Button(
             self.label_ma,
-            text = 'set_auto',
-            command=lambda: change_ma()
+            text = 'SET AUTO',
+            command=lambda: set_auto_manual()
         )
         self.label_ma.pack(side=Tkinter.TOP)
         self.button_ma.pack()
@@ -70,12 +75,75 @@ class Monitor(object):
 
         return data['device'], data['rooms'], data['start_time']
 
-    def control(self):
+    def open_the_door(self):
+        def input_door_password():
+            password_window = Tkinter.Toplevel()
+            password_window.title('Input password')
+            password_window.focus_set()
+
+            input_password_label = Tkinter.Label(password_window, text="Wprowadz haslo")
+            input_password_label.pack(side=Tkinter.LEFT)
+            password = Tkinter.Entry(password_window, bd=4)
+            password.pack(side = Tkinter.RIGHT)
+
+            def confirm_door_password():
+                if password.get() == DOOR_SECRET_PASSWORD:
+                    self.warnings.append('PASSWORD_OK')
+                else:
+                    self.warnings.append('PASSWORD_INCORRECT')
+                password_window.destroy()
+
+            confirm_door_password_button = Tkinter.Button(
+                password_window,
+                text = 'OK',
+                command=lambda: confirm_door_password()
+            )       
+            confirm_door_password_button.pack()
+
+        self.open_door_button = Tkinter.Button(
+            self.window, 
+            text = 'Otworz drzwi',
+            command=lambda: input_door_password()
+        )
+        self.open_door_button.pack()
+
+    def warning_window(self):
         label_war = Tkinter.LabelFrame(self.window, text='WARNING')
         label = Tkinter.Label(label_war, text='jakie tam ostrzezenie\ntrolololo\ndgfdg\n', fg='red')
         label.pack(fill='both')
         label_war.pack(fill='x', side=Tkinter.TOP)
 
+        def cancel_alarms():
+            self.warnings = []
+
+        cancel_alarms_button = Tkinter.Button(
+            label_war,
+            text = 'Zresetuj system alarmowy',
+            command=lambda: cancel_alarms()
+        )       
+        cancel_alarms_button.pack()
+
+        def generate_warning_string():
+            while 1:
+                string = ""
+
+                for w in self.warning_strings.keys():
+                    if w in self.warnings:
+                        string += self.warning_strings[w] + "\n"
+                label.config(text=string)
+
+                if 'PASSWORD_OK' in self.warnings:
+                    self.open_door_button.config(bg="green")
+                    self.open_door_button.config(text="Access Granted")
+                    sleep(3)
+                    self.open_door_button.config(bg="light grey")
+                    self.open_door_button.config(text="Otworz drzwi")
+                    self.warnings.remove('PASSWORD_OK') 
+
+                sleep(2)
+
+        t = threading.Thread(target=generate_warning_string)
+        t.start()
 
     def generateRooms(self):
         '''
